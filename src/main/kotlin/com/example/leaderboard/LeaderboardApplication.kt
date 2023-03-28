@@ -7,5 +7,5 @@ import org.springframework.boot.runApplication
 class LeaderboardApplication
 
 fun main(args: Array<String>) {
-	runApplication<LeaderboardApplication>(*args)
+    runApplication<LeaderboardApplication>(*args)
 }
