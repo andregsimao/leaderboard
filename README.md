@@ -26,12 +26,13 @@ java -jar build/libs/leaderboard-{version}.jar
 ./gradlew test
 ```
 
-## build OCI image
+## For building OCI image and running it as a container, simply use docker-compose:
 ```bash
-docker build --no-cache=true -t leaderboard .
+docker-compose up --build
 ```
 
-## run the image inside as a container
+## Alternatively, to build OCI image and run the image inside as a container
 ```bash
+docker build -t leaderboard .
 docker run -d -p 8080:8080 leaderboard
 ```
