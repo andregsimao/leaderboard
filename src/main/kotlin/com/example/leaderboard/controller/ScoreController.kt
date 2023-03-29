@@ -97,7 +97,9 @@ class ScoreController @Autowired constructor(scoreService: ScoreService) {
     }
 
     private fun getHttpStatusFromException(errorType: ErrorType): HttpStatus {
-        // TODO add new cases depending on errorType
+        if (errorType == ErrorType.REDIS_ERROR) {
+            return HttpStatus.INTERNAL_SERVER_ERROR
+        }
         return HttpStatus.BAD_REQUEST
     }
 }

@@ -1,6 +1,7 @@
 package com.example.leaderboard.service
 
 import com.example.leaderboard.exception.ApplicationException
+import com.example.leaderboard.exception.ErrorType
 import com.example.leaderboard.model.UserScore
 import jdk.jshell.spi.ExecutionControl.NotImplementedException
 import lombok.extern.slf4j.Slf4j
@@ -12,6 +13,7 @@ import org.springframework.stereotype.Service
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 import java.util.*
+import kotlin.math.roundToLong
 
 @Slf4j
 @Service
@@ -58,7 +60,20 @@ class ScoreService @Autowired constructor(redisTemplate: StringRedisTemplate) {
 
     @Throws(ApplicationException::class)
     private fun getLeaderBoard(key: String): List<UserScore> {
+        val userScores = mutableListOf<UserScore>()
+        val usernames = redisTemplate.opsForZSet().range(key, 0, leaderBoardSize)
+            ?: throw ApplicationException(ErrorType.REDIS_ERROR, "Error to get data from memory in Redis")
+        for (username in usernames) {
+            val userScore = getUserScoreWithUsername(key, username)
+            userScores.add(userScore)
+        }
         throw NotImplementedException("getLeaderBoard not implemented yet")
+    }
+
+    private fun getUserScoreWithUsername(key: String, username: String): UserScore {
+        val score = redisTemplate.opsForZSet().score(key, username)
+            ?: throw ApplicationException(ErrorType.REDIS_ERROR, "Error to get data from memory in Redis")
+        return UserScore(username, score.roundToLong())
     }
 
     private fun updateLeaderBoardRedis(key: String, value: String, score: Double) {
