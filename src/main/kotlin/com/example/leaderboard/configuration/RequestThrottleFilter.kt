@@ -40,7 +40,7 @@ class RequestThrottleFilter() : Filter {
         val requestURI = servletRequest.requestURI
         if (isMaximumRequestsPerSecondExceeded(requestURI, clientIpAddress)) {
             log.error(
-                "Too many requests for user $clientIpAddress. URI: $requestURI",
+                "[RequestThrottleFilter:doFilter] Too many requests for user $clientIpAddress. URI: $requestURI",
             )
             httpServletResponse.status = HttpStatus.TOO_MANY_REQUESTS.value()
             httpServletResponse.writer.write("Too many requests")
