@@ -1,5 +1,5 @@
 # leaderboard
-API to design and implement a simple leaderboard system for a social application. 
+API to design and implement a simple leaderboard system for a social application.
 
 <hr>
 
@@ -29,6 +29,11 @@ java -jar build/libs/leaderboard-{version}.jar
 ## For building OCI image and running it as a container, simply use docker-compose:
 ```bash
 docker-compose up --build
+```
+
+## For scaling up the API for 3 servers (for example) simply use docker-compose with the docker-compose-scale.yml:
+```bash
+docker-compose --file docker-compose-scale.yml up -d --build --scale leaderboard-server=3 
 ```
 
 ## Alternatively, to build OCI image and run the image inside as a container
