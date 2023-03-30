@@ -37,7 +37,7 @@ class ScoreControllerTest {
 
     @Test
     @Throws(Exception::class)
-    fun givenValidRequest_ThenAddNewUserScore() {
+    fun `should answer with status 200 when it is possible to insert new user score`() {
         val userScore = UserScore("username", 100)
         val expectedSuccessMessage = "Success adding new Score: ScoreRequest(username=\"${userScore.username}\"" +
             ", score=\"${userScore.score}\")"
@@ -57,7 +57,7 @@ class ScoreControllerTest {
     @Throws(
         Exception::class,
     )
-    fun givenInvalidRequest_WhenExceptionIsApplicationException_ThenReturnsExpectedErrorStatusCode(
+    fun `should answer with proper error status when it is not possible to insert new user score`(
         errorType: ErrorType,
     ) {
         val userScore = UserScore("username", 100)
@@ -77,7 +77,7 @@ class ScoreControllerTest {
 
     @Test
     @Throws(Exception::class)
-    fun givenValidState_ThenGetAllTimeLeaderBoard() {
+    fun `should return the all-time leaderboard successfully`() {
         val userScore1 = UserScore("username1", 200)
         val userScore2 = UserScore("username2", 100)
         val expectedLeaderBoard = listOf(userScore1, userScore2)
@@ -102,7 +102,7 @@ class ScoreControllerTest {
     @Throws(
         Exception::class,
     )
-    fun givenInvalidStateForAllTimeLeaderboard_WhenExceptionIsThrowable_ThenReturnsInternalServerError(
+    fun `should return error status when it is not possible to get all-time leaderboard`(
         errorType: ErrorType,
     ) {
         val exceptionMessage = "exception-stub"
@@ -120,7 +120,7 @@ class ScoreControllerTest {
 
     @Test
     @Throws(Exception::class)
-    fun givenValidState_ThenGetMonthlyLeaderBoard() {
+    fun `should return the monthly leaderboard successfully`() {
         val userScore1 = UserScore("username1", 200)
         val userScore2 = UserScore("username2", 100)
         val expectedLeaderBoard = listOf(userScore1, userScore2)
@@ -149,7 +149,7 @@ class ScoreControllerTest {
     @Throws(
         Exception::class,
     )
-    fun givenInvalidStateForMonthlyLeaderboard_WhenExceptionIsThrowable_ThenReturnsInternalServerError(
+    fun `should return error status when it is not possible to get monthly leaderboard`(
         errorType: ErrorType,
     ) {
         val exceptionMessage = "exception-stub"
