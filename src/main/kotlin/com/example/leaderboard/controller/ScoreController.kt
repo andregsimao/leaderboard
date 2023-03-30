@@ -56,7 +56,7 @@ class ScoreController @Autowired constructor(scoreService: ScoreService) {
         return try {
             log.info("[ScoreController:getAllTimeLeaderBoard] Receiving request for getting all time leaderboard")
             val allTimeLeaderBoard = scoreService.getAllTimeLeaderBoard()
-            val leaderBoardResponse = LeaderBoardResponse.buildLeaderBoardResponse(allTimeLeaderBoard)
+            val leaderBoardResponse = LeaderBoardResponse.buildLeaderBoardAllTimeResponse(allTimeLeaderBoard)
             log.info("[ScoreController:getAllTimeLeaderBoard] Success getting all time leaderboard: $leaderBoardResponse")
             ResponseEntity<LeaderBoardResponse>(leaderBoardResponse, HttpStatus.OK)
         } catch (e: ApplicationException) {
@@ -78,8 +78,10 @@ class ScoreController @Autowired constructor(scoreService: ScoreService) {
         return try {
             log.info("[ScoreController:getMonthlyLeaderBoard] Receiving request for getting monthly leaderboard")
             val currentDate = LocalDateTime.now()
-            val monthlyLeaderBoard = scoreService.getMonthlyLeaderBoard(currentDate)
-            val leaderBoardResponse = LeaderBoardResponse.buildLeaderBoardResponse(monthlyLeaderBoard)
+            val leaderBoardAndReferenceMonth = scoreService.getMonthlyLeaderBoard(currentDate)
+            val leaderBoardResponse = LeaderBoardResponse
+                .buildLeaderBoardResponse(leaderBoardAndReferenceMonth.first, leaderBoardAndReferenceMonth.second)
+
             log.info("[ScoreController:getMonthlyLeaderBoard] Success getting monthly leaderboard: $leaderBoardResponse")
             ResponseEntity<LeaderBoardResponse>(leaderBoardResponse, HttpStatus.OK)
         } catch (e: ApplicationException) {
@@ -97,9 +99,10 @@ class ScoreController @Autowired constructor(scoreService: ScoreService) {
     }
 
     private fun getHttpStatusFromException(errorType: ErrorType): HttpStatus {
-        if (errorType == ErrorType.REDIS_ERROR) {
-            return HttpStatus.INTERNAL_SERVER_ERROR
+        return when (errorType) {
+            ErrorType.REDIS_ERROR -> HttpStatus.INTERNAL_SERVER_ERROR
+            ErrorType.INVALID_SCORE_INPUT -> HttpStatus.BAD_REQUEST
+            ErrorType.NOT_ENOUGH_SCORES -> HttpStatus.NO_CONTENT
         }
-        return HttpStatus.BAD_REQUEST
     }
 }
