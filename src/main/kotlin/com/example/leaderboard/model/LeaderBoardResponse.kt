@@ -2,6 +2,7 @@ package com.example.leaderboard.model
 
 class LeaderBoardResponse private constructor() {
     var message: String? = null
+    var referenceMonth: String? = null
 
     private var leaderBoard: List<UserScore> = ArrayList()
 
@@ -12,17 +13,23 @@ class LeaderBoardResponse private constructor() {
         )
         return "LeaderBoardResponse(" +
             "message=" + message + ", " +
+            "referenceMonth=" + referenceMonth + ", " +
             "leaderBoard=" + leaderBoardConcatenated + ")"
     }
 
     companion object {
-        fun buildLeaderBoardResponse(leaderBoard: List<UserScore>): LeaderBoardResponse {
+        fun buildLeaderBoardAllTimeResponse(leaderBoard: List<UserScore>): LeaderBoardResponse {
+            return buildLeaderBoardResponse(leaderBoard, null)
+        }
+
+        fun buildLeaderBoardResponse(leaderBoard: List<UserScore>, referenceMonth: String?): LeaderBoardResponse {
             val leaderBoardConcatenated = java.lang.String.join(
                 ", ",
                 leaderBoard.map { it.toString() },
             )
             val response = LeaderBoardResponse()
             response.leaderBoard = leaderBoard
+            response.referenceMonth = referenceMonth
             response.message = "Leaderboard built with success: $leaderBoardConcatenated"
             return response
         }
