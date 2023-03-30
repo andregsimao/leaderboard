@@ -4,7 +4,7 @@ class LeaderBoardResponse private constructor() {
     var message: String? = null
     var referenceMonth: String? = null
 
-    private var leaderBoard: List<UserScore> = ArrayList()
+    var leaderBoard: List<UserScore> = ArrayList()
 
     override fun toString(): String {
         val leaderBoardConcatenated = java.lang.String.join(
