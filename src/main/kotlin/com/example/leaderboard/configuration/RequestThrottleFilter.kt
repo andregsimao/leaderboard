@@ -31,8 +31,7 @@ class RequestThrottleFilter() : Filter {
     private val leaderBoardApiSignature: String = ""
 
     @Throws(ServletException::class)
-    override fun init(filterConfig: FilterConfig) {
-    }
+    override fun init(filterConfig: FilterConfig) {}
 
     @Throws(IOException::class, ServletException::class)
     override fun doFilter(servletRequest: ServletRequest, servletResponse: ServletResponse, filterChain: FilterChain) {
@@ -41,7 +40,7 @@ class RequestThrottleFilter() : Filter {
         val requestURI = servletRequest.requestURI
         if (isMaximumRequestsPerSecondExceeded(requestURI, clientIpAddress)) {
             log.error(
-                "Too many requests for user $clientIpAddress. URI: $requestURI",
+                "[RequestThrottleFilter:doFilter] Too many requests for user $clientIpAddress. URI: $requestURI",
             )
             httpServletResponse.status = HttpStatus.TOO_MANY_REQUESTS.value()
             httpServletResponse.writer.write("Too many requests")
@@ -70,7 +69,7 @@ class RequestThrottleFilter() : Filter {
         return false
     }
 
-    fun getClientIP(request: HttpServletRequest): String {
+    private fun getClientIP(request: HttpServletRequest): String {
         val xfHeader = request.getHeader("X-Forwarded-For") ?: return request.remoteAddr
         return xfHeader.split(",".toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()[0]
     }

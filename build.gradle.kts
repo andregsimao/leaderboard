@@ -19,6 +19,8 @@ repositories {
 val springDocVersion: String by project
 val hibernateValidatorVersion: String by project
 val javaxWsApiVersion: String by project
+val mockkVersion: String by project
+val junitVersion: String by project
 
 dependencies {
     implementation("org.springframework.boot:spring-boot-starter-data-jpa")
@@ -33,10 +35,12 @@ dependencies {
         exclude("logback-classic", "ch.qos.logback")
         exclude("log4j-over-slf4j", "org.slf4j")
     }
+    implementation("org.junit.jupiter:junit-jupiter:$junitVersion")
 
     developmentOnly("org.springframework.boot:spring-boot-devtools")
     compileOnly("org.projectlombok:lombok")
     runtimeOnly("com.h2database:h2")
+    testImplementation("io.mockk:mockk:$mockkVersion")
 
     testImplementation("org.springframework.boot:spring-boot-starter-test")
 }
