@@ -27,4 +27,4 @@ COPY --from=builder /app/build/libs/*.jar /deployments/
 
 EXPOSE 8080
 
-ENTRYPOINT ["sh", "-c", "java -jar leaderboard-0.0.3.jar"]
+ENTRYPOINT ["sh", "-c", "java -jar leaderboard-1.0.0.jar"]
