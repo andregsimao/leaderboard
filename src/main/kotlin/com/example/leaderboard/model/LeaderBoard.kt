@@ -13,7 +13,8 @@ class LeaderBoard {
     }
 
     fun buildLeaderBoardList(leaderBoardSize: Int): List<UserScore> {
-        return userScores.toList().subList(0, leaderBoardSize).sortedDescending()
+        val size = leaderBoardSize.coerceAtMost(userScores.size)
+        return userScores.toList().subList(0, size).sortedDescending()
     }
 
     fun addUserScore(userScore: UserScore) {
