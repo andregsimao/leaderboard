@@ -6,6 +6,7 @@ import com.example.leaderboard.model.UserScore
 import com.example.leaderboard.service.ScoreService
 import org.hibernate.query.sqm.tree.SqmNode.log
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.beans.factory.annotation.Value
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.GetMapping
@@ -13,7 +14,6 @@ import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
-import java.time.LocalDateTime
 import javax.ws.rs.Consumes
 import javax.ws.rs.Produces
 import javax.ws.rs.core.MediaType
@@ -25,6 +25,9 @@ import javax.ws.rs.core.MediaType
 class ScoreController @Autowired constructor(scoreService: ScoreService) {
     private val scoreService: ScoreService
 
+    @Value("\${leaderboard.size}")
+    private val leaderBoardSize: Int = 10
+
     init {
         this.scoreService = scoreService
     }
@@ -33,8 +36,7 @@ class ScoreController @Autowired constructor(scoreService: ScoreService) {
     fun addNewUserScore(@RequestBody userScore: UserScore): ResponseEntity<String> {
         return try {
             log.info("[ScoreController:addNewUser] Receiving request for adding new score: $userScore")
-            val currentDate = LocalDateTime.now()
-            scoreService.addNewUserScore(userScore, currentDate)
+            scoreService.addNewUserScore(userScore)
             val successMessage = "Success adding new Score: $userScore"
             log.info("[ScoreController:addNewUser] $successMessage")
             ResponseEntity<String>(successMessage, HttpStatus.OK)
@@ -54,7 +56,7 @@ class ScoreController @Autowired constructor(scoreService: ScoreService) {
         return try {
             log.info("[ScoreController:getAllTimeLeaderBoard] Receiving request for getting all time leaderboard")
             val allTimeLeaderBoard = scoreService.getAllTimeLeaderBoard()
-            val leaderBoardResponse = LeaderBoardResponse.buildLeaderBoardAllTimeResponse(allTimeLeaderBoard)
+            val leaderBoardResponse = LeaderBoardResponse.buildLeaderBoardResponse(allTimeLeaderBoard, leaderBoardSize)
             log.info("[ScoreController:getAllTimeLeaderBoard] Success getting all time leaderboard: $leaderBoardResponse")
             ResponseEntity<LeaderBoardResponse>(leaderBoardResponse, HttpStatus.OK)
         } catch (e: Throwable) {
@@ -69,10 +71,9 @@ class ScoreController @Autowired constructor(scoreService: ScoreService) {
     fun getMonthlyLeaderBoard(): ResponseEntity<LeaderBoardResponse> {
         return try {
             log.info("[ScoreController:getMonthlyLeaderBoard] Receiving request for getting monthly leaderboard")
-            val currentDate = LocalDateTime.now()
-            val leaderBoardAndReferenceMonth = scoreService.getMonthlyLeaderBoard(currentDate)
+            val leaderBoardAndReferenceMonth = scoreService.getMonthlyLeaderBoard()
             val leaderBoardResponse = LeaderBoardResponse
-                .buildLeaderBoardResponse(leaderBoardAndReferenceMonth.first, leaderBoardAndReferenceMonth.second)
+                .buildLeaderBoardResponse(leaderBoardAndReferenceMonth, leaderBoardSize)
 
             log.info("[ScoreController:getMonthlyLeaderBoard] Success getting monthly leaderboard: $leaderBoardResponse")
             ResponseEntity<LeaderBoardResponse>(leaderBoardResponse, HttpStatus.OK)
