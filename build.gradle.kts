@@ -9,7 +9,7 @@ plugins {
 }
 
 group = "com.example"
-version = "0.0.3"
+version = "1.0.0"
 java.sourceCompatibility = JavaVersion.VERSION_17
 
 repositories {
@@ -19,6 +19,8 @@ repositories {
 val springDocVersion: String by project
 val hibernateValidatorVersion: String by project
 val javaxWsApiVersion: String by project
+val mockkVersion: String by project
+val junitVersion: String by project
 
 dependencies {
     implementation("org.springframework.boot:spring-boot-starter-data-jpa")
@@ -29,9 +31,17 @@ dependencies {
     implementation("org.hibernate:hibernate-validator:$hibernateValidatorVersion")
     implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:$springDocVersion")
     implementation("javax.ws.rs:javax.ws.rs-api:$javaxWsApiVersion")
+    implementation("com.github.ben-manes.caffeine:caffeine") {
+        exclude("logback-classic", "ch.qos.logback")
+        exclude("log4j-over-slf4j", "org.slf4j")
+    }
+    implementation("org.junit.jupiter:junit-jupiter:$junitVersion")
 
     developmentOnly("org.springframework.boot:spring-boot-devtools")
+    compileOnly("org.projectlombok:lombok")
     runtimeOnly("com.h2database:h2")
+    testImplementation("io.mockk:mockk:$mockkVersion")
+
     testImplementation("org.springframework.boot:spring-boot-starter-test")
 }
 
