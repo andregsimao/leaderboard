@@ -1,24 +1,24 @@
 package com.example.leaderboard.service
 
+import com.example.leaderboard.configuration.LeaderBoardsBean
 import com.example.leaderboard.exception.ApplicationException
 import com.example.leaderboard.exception.ErrorType
 import com.example.leaderboard.model.UserScore
-import jdk.jshell.spi.ExecutionControl.NotImplementedException
 import lombok.extern.slf4j.Slf4j
 import org.hibernate.query.sqm.tree.SqmNode.log
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Value
-import org.springframework.data.redis.core.StringRedisTemplate
 import org.springframework.stereotype.Service
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 import java.util.*
-import kotlin.math.roundToLong
+import java.util.concurrent.PriorityBlockingQueue
 
 @Slf4j
 @Service
-class ScoreService @Autowired constructor(redisTemplate: StringRedisTemplate) {
-    private val redisTemplate: StringRedisTemplate
+class ScoreService @Autowired constructor(leaderBoardsBean: LeaderBoardsBean) {
+
+    private val leaderBoardsBean: LeaderBoardsBean
 
     @Value("\${leaderboard.size}")
     private val leaderBoardSize: Long = 10
@@ -29,7 +29,7 @@ class ScoreService @Autowired constructor(redisTemplate: StringRedisTemplate) {
     }
 
     init {
-        this.redisTemplate = redisTemplate
+        this.leaderBoardsBean = leaderBoardsBean
     }
 
     @Throws(ApplicationException::class)
@@ -38,12 +38,12 @@ class ScoreService @Autowired constructor(redisTemplate: StringRedisTemplate) {
         updateLeaderBoardRedis(
             key = LEADER_BOARD_ALL_TIME_KEY,
             value = userScore.username,
-            score = userScore.score.toDouble(),
+            score = userScore.score,
         )
         updateLeaderBoardRedis(
             key = getLeaderBoardMonthlyKey(currentDate),
             value = userScore.username,
-            score = userScore.score.toDouble(),
+            score = userScore.score,
         )
     }
 
@@ -53,36 +53,41 @@ class ScoreService @Autowired constructor(redisTemplate: StringRedisTemplate) {
     }
 
     @Throws(ApplicationException::class)
-    fun getMonthlyLeaderBoard(currentDate: LocalDateTime): List<UserScore> {
+    fun getMonthlyLeaderBoard(currentDate: LocalDateTime): Pair<List<UserScore>, String> {
+        val yearAndMonth = getMonthAndYearFromDate(currentDate)
         val leaderBoardMonthlyKey = getLeaderBoardMonthlyKey(currentDate)
-        return getLeaderBoard(leaderBoardMonthlyKey)
+        return Pair(getLeaderBoard(leaderBoardMonthlyKey), yearAndMonth)
     }
 
     @Throws(ApplicationException::class)
     private fun getLeaderBoard(key: String): List<UserScore> {
-        val userScores = mutableListOf<UserScore>()
-        val usernames = redisTemplate.opsForZSet().range(key, 0, leaderBoardSize)
-            ?: throw ApplicationException(ErrorType.REDIS_ERROR, "Error to get data from memory in Redis")
-        for (username in usernames) {
-            val userScore = getUserScoreWithUsername(key, username)
-            userScores.add(userScore)
+        val leaderBoard = leaderBoardsBean.getLeaderBoard(key)
+        if (hasNotEnouthScores(leaderBoard)) {
+            throw ApplicationException(ErrorType.NOT_ENOUGH_SCORES, "There is not enough values to get leaderboard yet")
         }
-        throw NotImplementedException("getLeaderBoard not implemented yet")
+        return leaderBoard.toList().sortedDescending()
     }
 
-    private fun getUserScoreWithUsername(key: String, username: String): UserScore {
-        val score = redisTemplate.opsForZSet().score(key, username)
-            ?: throw ApplicationException(ErrorType.REDIS_ERROR, "Error to get data from memory in Redis")
-        return UserScore(username, score.roundToLong())
+    private fun hasNotEnouthScores(priorityQueues: PriorityBlockingQueue<UserScore>): Boolean {
+        return priorityQueues.size < leaderBoardSize
     }
 
-    private fun updateLeaderBoardRedis(key: String, value: String, score: Double) {
-        val returnStatus = redisTemplate.opsForZSet().add(key, value, score)
-        log.info(
-            "[ScoreService:addNewUserScore] Data Inserted/Updated Successfully with status $returnStatus for " +
-                "key: $key, value: $value, and score: $score",
-        )
-        throw NotImplementedException("buildUserScore not implemented yet")
+    private fun updateLeaderBoardRedis(key: String, value: String, score: Long) {
+        val leaderBoard = leaderBoardsBean.getLeaderBoard(key)
+        leaderBoard.add(UserScore(value, score))
+        log.info("[ScoreService:updateLeaderBoardRedis] Adding from key: $key: value: $value, and score: $score")
+        removeAdditionalElements(key, leaderBoard)
+    }
+
+    private fun removeAdditionalElements(key: String, leaderBoard: PriorityBlockingQueue<UserScore>) {
+        while (leaderBoard.size > leaderBoardSize) {
+            val userScore = leaderBoard.last()
+            leaderBoard.remove(userScore)
+            log.info(
+                "[ScoreService:updateLeaderBoardRedis] Removing from key: $key: value: " +
+                    "${userScore.username}, and score: ${userScore.score}",
+            )
+        }
     }
 
     private fun getLeaderBoardMonthlyKey(date: LocalDateTime): String {

@@ -20,7 +20,6 @@ import org.springframework.context.annotation.Bean
 import org.springframework.http.MediaType
 import org.springframework.test.context.junit.jupiter.SpringExtension
 import org.springframework.test.web.servlet.MockMvc
-import org.springframework.test.web.servlet.ResultMatcher
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
@@ -73,7 +72,7 @@ internal class ScoreControllerTest {
         val exceptionMessage = "exception message"
         val exception = ApplicationException(errorType, exceptionMessage)
         val expectedMessage = "Error to get the leaderboard: $exceptionMessage"
-        val resultMatcher = getResultMatcherFromErrorType(errorType)
+        val resultMatcher = status().isBadRequest
         Mockito.`when`(scoreService.addNewUserScore(userScore, any())).thenThrow(exception)
         mockMvc.perform(
             MockMvcRequestBuilders.post("/leaderboard/add-new-user")
@@ -117,9 +116,9 @@ internal class ScoreControllerTest {
     ) {
         val exceptionMessage = "exception-stub"
         val expectedMessage = "Internal Server Error while getting all time leaderboard: $exceptionMessage"
-        Mockito.`when`(scoreService?.getAllTimeLeaderBoard())
+        Mockito.`when`(scoreService.getAllTimeLeaderBoard())
             .thenThrow(java.lang.Exception(exceptionMessage))
-        mockMvc!!.perform(
+        mockMvc.perform(
             MockMvcRequestBuilders
                 .get("/leaderboard/all-time-leaderboard")
                 .contentType(MediaType.APPLICATION_JSON)
@@ -137,9 +136,9 @@ internal class ScoreControllerTest {
         val dateFormat = DateTimeFormatter.ofPattern("yyyyMM")
         val expectedMonth = LocalDateTime.now().format(dateFormat)
         val expectedSuccessMessage = "Leaderboard built with success: $userScore1, $userScore2"
-        Mockito.`when`(scoreService?.getMonthlyLeaderBoard(any()))
+        Mockito.`when`(scoreService.getMonthlyLeaderBoard(any()))
             .thenReturn(Pair(expectedLeaderBoard, expectedMonth))
-        mockMvc!!.perform(
+        mockMvc.perform(
             MockMvcRequestBuilders
                 .get("/leaderboard/monthly-leaderboard")
                 .contentType(MediaType.APPLICATION_JSON)
@@ -164,23 +163,15 @@ internal class ScoreControllerTest {
     ) {
         val exceptionMessage = "exception-stub"
         val expectedMessage = "Internal Server Error while getting monthly leaderboard: $exceptionMessage"
-        Mockito.`when`(scoreService?.getMonthlyLeaderBoard(any()))
+        Mockito.`when`(scoreService.getMonthlyLeaderBoard(any()))
             .thenThrow(java.lang.Exception(exceptionMessage))
-        mockMvc!!.perform(
+        mockMvc.perform(
             MockMvcRequestBuilders
                 .get("/leaderboard/monthly-leaderboard")
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON),
         ).andExpect(status().isInternalServerError)
             .andExpect(jsonPath("$", Matchers.`is`(expectedMessage)))
-    }
-
-    private fun getResultMatcherFromErrorType(errorType: ErrorType): ResultMatcher {
-        return when (errorType) {
-            ErrorType.REDIS_ERROR -> status().isInternalServerError
-            ErrorType.INVALID_SCORE_INPUT -> status().isBadRequest
-            ErrorType.NOT_ENOUGH_SCORES -> status().isNoContent
-        }
     }
 
     companion object {

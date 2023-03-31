@@ -1,7 +1,6 @@
 package com.example.leaderboard.controller
 
 import com.example.leaderboard.exception.ApplicationException
-import com.example.leaderboard.exception.ErrorType
 import com.example.leaderboard.model.LeaderBoardResponse
 import com.example.leaderboard.model.UserScore
 import com.example.leaderboard.service.ScoreService
@@ -42,8 +41,7 @@ class ScoreController @Autowired constructor(scoreService: ScoreService) {
         } catch (e: ApplicationException) {
             val errorMessage = "Exception while adding new user score for input $userScore: ${e.message}"
             log.error("[ScoreController:addNewUser] $errorMessage")
-            val httpStatus = getHttpStatusFromException(e.errorType)
-            ResponseEntity<String>(errorMessage, httpStatus)
+            ResponseEntity<String>(errorMessage, HttpStatus.BAD_REQUEST)
         } catch (e: Throwable) {
             val errorMessage = "Internal Server Error while adding new user score for input $userScore: ${e.message}"
             log.error("[ScoreController:addNewUser] $errorMessage")
@@ -62,9 +60,8 @@ class ScoreController @Autowired constructor(scoreService: ScoreService) {
         } catch (e: ApplicationException) {
             val errorMessage = "Exception while getting all time leaderboard: ${e.message}"
             log.error("[ScoreController:getAllTimeLeaderBoard] $errorMessage")
-            val httpStatus = getHttpStatusFromException(e.errorType)
             val errorResponse = LeaderBoardResponse.buildLeaderBoardErrorResponse(errorMessage)
-            ResponseEntity<LeaderBoardResponse>(errorResponse, httpStatus)
+            ResponseEntity<LeaderBoardResponse>(errorResponse, HttpStatus.BAD_REQUEST)
         } catch (e: Throwable) {
             val errorMessage = "Internal Server Error while getting all time leaderboard: ${e.message}"
             log.error("[ScoreController:getAllTimeLeaderBoard] $errorMessage")
@@ -87,22 +84,13 @@ class ScoreController @Autowired constructor(scoreService: ScoreService) {
         } catch (e: ApplicationException) {
             val errorMessage = "Exception while getting monthly leaderboard: ${e.message}"
             log.error("[ScoreController:getMonthlyLeaderBoard] $errorMessage")
-            val httpStatus = getHttpStatusFromException(e.errorType)
             val errorResponse = LeaderBoardResponse.buildLeaderBoardErrorResponse(errorMessage)
-            ResponseEntity<LeaderBoardResponse>(errorResponse, httpStatus)
+            ResponseEntity<LeaderBoardResponse>(errorResponse, HttpStatus.BAD_REQUEST)
         } catch (e: Throwable) {
             val errorMessage = "Internal Server Error while getting monthly leaderboard: ${e.message}"
             log.error("[ScoreController:getMonthlyLeaderBoard] $errorMessage")
             val errorResponse = LeaderBoardResponse.buildLeaderBoardErrorResponse(errorMessage)
             ResponseEntity<LeaderBoardResponse>(errorResponse, HttpStatus.INTERNAL_SERVER_ERROR)
-        }
-    }
-
-    private fun getHttpStatusFromException(errorType: ErrorType): HttpStatus {
-        return when (errorType) {
-            ErrorType.REDIS_ERROR -> HttpStatus.INTERNAL_SERVER_ERROR
-            ErrorType.INVALID_SCORE_INPUT -> HttpStatus.BAD_REQUEST
-            ErrorType.NOT_ENOUGH_SCORES -> HttpStatus.NO_CONTENT
         }
     }
 }
