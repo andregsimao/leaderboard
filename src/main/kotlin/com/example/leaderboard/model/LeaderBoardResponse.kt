@@ -3,7 +3,6 @@ package com.example.leaderboard.model
 class LeaderBoardResponse private constructor() {
     var message: String? = null
     var referenceMonth: String? = null
-
     var leaderBoard: List<UserScore> = ArrayList()
 
     override fun toString(): String {
@@ -18,19 +17,11 @@ class LeaderBoardResponse private constructor() {
     }
 
     companion object {
-        fun buildLeaderBoardAllTimeResponse(leaderBoard: List<UserScore>): LeaderBoardResponse {
-            return buildLeaderBoardResponse(leaderBoard, null)
-        }
-
-        fun buildLeaderBoardResponse(leaderBoard: List<UserScore>, referenceMonth: String?): LeaderBoardResponse {
-            val leaderBoardConcatenated = java.lang.String.join(
-                ", ",
-                leaderBoard.map { it.toString() },
-            )
+        fun buildLeaderBoardResponse(leaderBoard: LeaderBoard, size: Int): LeaderBoardResponse {
             val response = LeaderBoardResponse()
-            response.leaderBoard = leaderBoard
-            response.referenceMonth = referenceMonth
-            response.message = "Leaderboard built with success: $leaderBoardConcatenated"
+            response.leaderBoard = leaderBoard.buildLeaderBoardList(size)
+            response.referenceMonth = leaderBoard.yearAndMonth
+            response.message = "Leaderboard built with success"
             return response
         }
 
