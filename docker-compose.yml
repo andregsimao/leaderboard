@@ -1,14 +1,36 @@
 version: '2'
 services:
     leaderboard-server:
+        depends_on:
+            - cache
+        restart: always
         container_name: leaderboard
         build:
             dockerfile: Dockerfile
         image: leaderboard:latest
         ports:
             - 8080:8080
+        environment:
+            REDIS_HOST: cache
+            REDIS_PORT: 6379
+            REDIS_PASSWORD: eYVX7EwVmmxKPCDmwMtyKVge8oLd2t81
+        links:
+            - cache
+        networks:
+            - spring-cloud-network
+    cache:
+        image: redis:6.2-alpine
+        restart: always
+        ports:
+            - 6379:6379
+        command: redis-server --save 20 1 --loglevel warning --requirepass eYVX7EwVmmxKPCDmwMtyKVge8oLd2t81
+        volumes:
+            - cache:/data
         networks:
             - spring-cloud-network
 networks:
     spring-cloud-network:
         driver: bridge
+volumes:
+    cache:
+        driver: local

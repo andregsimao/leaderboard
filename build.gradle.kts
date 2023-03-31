@@ -20,6 +20,8 @@ val springDocVersion: String by project
 val hibernateValidatorVersion: String by project
 val javaxWsApiVersion: String by project
 val redisVersion: String by project
+val redissonRedisSpringVersion: String by project
+val mockkVersion: String by project
 
 dependencies {
     implementation("org.springframework.boot:spring-boot-starter-data-jpa")
@@ -30,17 +32,17 @@ dependencies {
     implementation("org.hibernate:hibernate-validator:$hibernateValidatorVersion")
     implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:$springDocVersion")
     implementation("javax.ws.rs:javax.ws.rs-api:$javaxWsApiVersion")
-    implementation("org.springframework.boot:spring-boot-starter-data-redis:$redisVersion")
+    implementation("org.redisson:redisson-spring-boot-starter:$redissonRedisSpringVersion")
     implementation("com.github.ben-manes.caffeine:caffeine") {
         exclude("logback-classic", "ch.qos.logback")
         exclude("log4j-over-slf4j", "org.slf4j")
     }
-
     developmentOnly("org.springframework.boot:spring-boot-devtools")
     compileOnly("org.projectlombok:lombok")
     runtimeOnly("com.h2database:h2")
 
     testImplementation("org.springframework.boot:spring-boot-starter-test")
+    testImplementation("io.mockk:mockk:$mockkVersion")
 }
 
 tasks.withType<KotlinCompile> {
