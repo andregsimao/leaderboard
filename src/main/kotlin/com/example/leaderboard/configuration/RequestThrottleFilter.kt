@@ -10,7 +10,6 @@ import jakarta.servlet.ServletRequest
 import jakarta.servlet.ServletResponse
 import jakarta.servlet.http.HttpServletRequest
 import jakarta.servlet.http.HttpServletResponse
-import lombok.extern.slf4j.Slf4j
 import org.hibernate.query.sqm.tree.SqmNode.log
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.http.HttpStatus
@@ -18,7 +17,6 @@ import org.springframework.stereotype.Component
 import java.io.IOException
 import java.util.concurrent.TimeUnit
 
-@Slf4j
 @Component
 class RequestThrottleFilter() : Filter {
     private val requestCountsPerIpAddress: LoadingCache<String, Int> =

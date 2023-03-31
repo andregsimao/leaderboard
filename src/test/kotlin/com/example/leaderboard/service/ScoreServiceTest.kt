@@ -29,10 +29,9 @@ class ScoreServiceTest {
     @ValueSource(strings = ["", " "])
     fun `should not add new user score when the user score data is invalid`(userName: String) {
         val userScore = UserScore(userName, -2)
-        val currentDate = LocalDateTime.now()
         val expectedMessage = "Username should not be empty"
         val exception = assertThrows<ApplicationException> {
-            scoreService.addNewUserScore(userScore, currentDate)
+            scoreService.addNewUserScore(userScore)
         }
         Assertions.assertEquals(ErrorType.INVALID_SCORE_INPUT, exception.errorType)
         Assertions.assertEquals(expectedMessage, exception.message)
