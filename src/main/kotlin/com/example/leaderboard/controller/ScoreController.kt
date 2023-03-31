@@ -57,11 +57,6 @@ class ScoreController @Autowired constructor(scoreService: ScoreService) {
             val leaderBoardResponse = LeaderBoardResponse.buildLeaderBoardAllTimeResponse(allTimeLeaderBoard)
             log.info("[ScoreController:getAllTimeLeaderBoard] Success getting all time leaderboard: $leaderBoardResponse")
             ResponseEntity<LeaderBoardResponse>(leaderBoardResponse, HttpStatus.OK)
-        } catch (e: ApplicationException) {
-            val errorMessage = "Exception while getting all time leaderboard: ${e.message}"
-            log.error("[ScoreController:getAllTimeLeaderBoard] $errorMessage")
-            val errorResponse = LeaderBoardResponse.buildLeaderBoardErrorResponse(errorMessage)
-            ResponseEntity<LeaderBoardResponse>(errorResponse, HttpStatus.BAD_REQUEST)
         } catch (e: Throwable) {
             val errorMessage = "Internal Server Error while getting all time leaderboard: ${e.message}"
             log.error("[ScoreController:getAllTimeLeaderBoard] $errorMessage")
@@ -81,11 +76,6 @@ class ScoreController @Autowired constructor(scoreService: ScoreService) {
 
             log.info("[ScoreController:getMonthlyLeaderBoard] Success getting monthly leaderboard: $leaderBoardResponse")
             ResponseEntity<LeaderBoardResponse>(leaderBoardResponse, HttpStatus.OK)
-        } catch (e: ApplicationException) {
-            val errorMessage = "Exception while getting monthly leaderboard: ${e.message}"
-            log.error("[ScoreController:getMonthlyLeaderBoard] $errorMessage")
-            val errorResponse = LeaderBoardResponse.buildLeaderBoardErrorResponse(errorMessage)
-            ResponseEntity<LeaderBoardResponse>(errorResponse, HttpStatus.BAD_REQUEST)
         } catch (e: Throwable) {
             val errorMessage = "Internal Server Error while getting monthly leaderboard: ${e.message}"
             log.error("[ScoreController:getMonthlyLeaderBoard] $errorMessage")

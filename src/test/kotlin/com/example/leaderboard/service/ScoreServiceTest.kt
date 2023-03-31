@@ -35,6 +35,6 @@ class ScoreServiceTest {
             scoreService.addNewUserScore(userScore, currentDate)
         }
         Assertions.assertEquals(ErrorType.INVALID_SCORE_INPUT, exception.errorType)
-        Assertions.assertEquals(expectedMessage, exception.errorType)
+        Assertions.assertEquals(expectedMessage, exception.message)
     }
 }

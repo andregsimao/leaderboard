@@ -2,7 +2,6 @@ package com.example.leaderboard.service
 
 import com.example.leaderboard.configuration.LeaderBoardsBean
 import com.example.leaderboard.exception.ApplicationException
-import com.example.leaderboard.exception.ErrorType
 import com.example.leaderboard.model.UserScore
 import lombok.extern.slf4j.Slf4j
 import org.hibernate.query.sqm.tree.SqmNode.log
@@ -62,14 +61,7 @@ class ScoreService @Autowired constructor(leaderBoardsBean: LeaderBoardsBean) {
     @Throws(ApplicationException::class)
     private fun getLeaderBoard(key: String): List<UserScore> {
         val leaderBoard = leaderBoardsBean.getLeaderBoard(key)
-        if (hasNotEnouthScores(leaderBoard)) {
-            throw ApplicationException(ErrorType.NOT_ENOUGH_SCORES, "There is not enough values to get leaderboard yet")
-        }
         return leaderBoard.toList().sortedDescending()
-    }
-
-    private fun hasNotEnouthScores(priorityQueues: PriorityBlockingQueue<UserScore>): Boolean {
-        return priorityQueues.size < leaderBoardSize
     }
 
     private fun updateLeaderBoardRedis(key: String, value: String, score: Long) {
