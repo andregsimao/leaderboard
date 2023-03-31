@@ -5,6 +5,7 @@ import com.example.leaderboard.exception.ErrorType
 import com.example.leaderboard.model.UserScore
 import com.example.leaderboard.service.ScoreService
 import com.fasterxml.jackson.databind.ObjectMapper
+import io.mockk.mockk
 import org.hamcrest.Matchers
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
@@ -14,7 +15,8 @@ import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest
-import org.springframework.boot.test.mock.mockito.MockBean
+import org.springframework.boot.test.context.TestConfiguration
+import org.springframework.context.annotation.Bean
 import org.springframework.http.MediaType
 import org.springframework.test.context.junit.jupiter.SpringExtension
 import org.springframework.test.web.servlet.MockMvc
@@ -28,12 +30,19 @@ import java.util.*
 
 @ExtendWith(SpringExtension::class)
 @WebMvcTest(ScoreController::class)
-class ScoreControllerTest {
-    @MockBean
-    var scoreService: ScoreService? = null
+internal class ScoreControllerTest {
+
+    @TestConfiguration
+    class ControllerTestConfig {
+        @Bean
+        fun scoreService() = mockk<ScoreService>()
+    }
 
     @Autowired
-    var mockMvc: MockMvc? = null
+    private lateinit var mockMvc: MockMvc
+
+    @Autowired
+    private lateinit var scoreService: ScoreService
 
     @Test
     @Throws(Exception::class)
@@ -41,7 +50,7 @@ class ScoreControllerTest {
         val userScore = UserScore("username", 100)
         val expectedSuccessMessage = "Success adding new Score: ScoreRequest(username=\"${userScore.username}\"" +
             ", score=\"${userScore.score}\")"
-        mockMvc!!.perform(
+        mockMvc.perform(
             MockMvcRequestBuilders
                 .post("/leaderboard/add-new-user")
                 .content(asJsonString(userScore))
@@ -65,13 +74,14 @@ class ScoreControllerTest {
         val exception = ApplicationException(errorType, exceptionMessage)
         val expectedMessage = "Error to get the leaderboard: $exceptionMessage"
         val resultMatcher = getResultMatcherFromErrorType(errorType)
-        Mockito.`when`(scoreService?.addNewUserScore(userScore, any())).thenThrow(exception)
-        mockMvc!!.perform(
+        Mockito.`when`(scoreService.addNewUserScore(userScore, any())).thenThrow(exception)
+        mockMvc.perform(
             MockMvcRequestBuilders.post("/leaderboard/add-new-user")
                 .content(asJsonString(userScore))
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON),
-        ).andExpect(resultMatcher)
+        )
+            .andExpect(resultMatcher)
             .andExpect(jsonPath("$", Matchers.`is`(expectedMessage)))
     }
 
@@ -82,8 +92,8 @@ class ScoreControllerTest {
         val userScore2 = UserScore("username2", 100)
         val expectedLeaderBoard = listOf(userScore1, userScore2)
         val expectedSuccessMessage = "Leaderboard built with success: $userScore1, $userScore2"
-        Mockito.`when`(scoreService?.getAllTimeLeaderBoard()).thenReturn(expectedLeaderBoard)
-        mockMvc!!.perform(
+        Mockito.`when`(scoreService.getAllTimeLeaderBoard()).thenReturn(expectedLeaderBoard)
+        mockMvc.perform(
             MockMvcRequestBuilders
                 .get("/leaderboard/all-time-leaderboard")
                 .contentType(MediaType.APPLICATION_JSON)

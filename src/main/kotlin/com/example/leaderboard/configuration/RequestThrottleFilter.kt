@@ -69,7 +69,7 @@ class RequestThrottleFilter() : Filter {
         return false
     }
 
-    fun getClientIP(request: HttpServletRequest): String {
+    private fun getClientIP(request: HttpServletRequest): String {
         val xfHeader = request.getHeader("X-Forwarded-For") ?: return request.remoteAddr
         return xfHeader.split(",".toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()[0]
     }
