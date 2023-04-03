@@ -65,7 +65,7 @@ Status code 400 and an error message because the username cannot be blank
 Status code 200
 ```json
 {
-  "message": "Leaderboard built with success: ScoreRequest(username=eee, score=20), ScoreRequest(username=eee, score=20), ScoreRequest(username=eee, score=20), ScoreRequest(username=eee, score=20), ScoreRequest(username=tytyt, score=6), ScoreRequest(username=ereretr, score=6), ScoreRequest(username=ereretr, score=6), ScoreRequest(username=ereretr, score=6), ScoreRequest(username=string, score=0), ScoreRequest(username=string1, score=-2)",
+  "message": "Leaderboard built with success",
   "referenceMonth": null,
   "leaderBoard": [
     {

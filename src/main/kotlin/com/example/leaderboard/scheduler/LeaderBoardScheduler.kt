@@ -1,4 +1,4 @@
-package com.example.leaderboard
+package com.example.leaderboard.scheduler
 
 import com.example.leaderboard.configuration.LeaderBoardsBean
 import org.hibernate.query.sqm.tree.SqmNode.log
@@ -27,7 +27,7 @@ class LeaderBoardScheduler @Autowired constructor(leaderBoardsBean: LeaderBoards
     @Scheduled(fixedRate = TIME_TO_CLEAN_MILLIS)
     fun trimMonthlyLeaderboard() {
         val monthLeaderBoard = leaderBoardsBean.getMonthlyLeaderBoard()
-        val numDeleted = monthLeaderBoard.cleanLeaderboard(leaderBoardSize)
+        val numDeleted = monthLeaderBoard.trimLeaderboard(leaderBoardSize)
         if (numDeleted > 0) {
             log.info(
                 "[CleanerScheduler:trimMonthlyLeaderboard] $numDeleted scores deleted from " +
@@ -39,7 +39,7 @@ class LeaderBoardScheduler @Autowired constructor(leaderBoardsBean: LeaderBoards
     @Scheduled(fixedRate = TIME_TO_CLEAN_MILLIS)
     fun trimAlltimeLeaderboard() {
         val alltimeLeaderBoard = leaderBoardsBean.getAlltimeLeaderBoard()
-        val numDeleted = alltimeLeaderBoard.cleanLeaderboard(leaderBoardSize)
+        val numDeleted = alltimeLeaderBoard.trimLeaderboard(leaderBoardSize)
         if (numDeleted > 0) {
             log.info(
                 "[CleanerScheduler:trimAlltimeLeaderboard] Cleaning unnecessary values from " +
