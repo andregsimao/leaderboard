@@ -10,10 +10,15 @@ class LeaderBoardResponseTest {
     fun `should build all-time leaderboard response successfully`() {
         val userScore1 = UserScore("username1", 200)
         val userScore2 = UserScore("username2", 100)
-        val userScores = listOf(userScore1, userScore2)
-        val response = LeaderBoardResponse.buildLeaderBoardAllTimeResponse(userScores)
+
+        val leaderBoard = LeaderBoard()
+        leaderBoard.addUserScore(userScore1)
+        leaderBoard.addUserScore(userScore2)
+
+        val response = LeaderBoardResponse.buildLeaderBoardResponse(leaderBoard, 2)
+
         assertNull(response.referenceMonth)
-        assertEquals("Leaderboard built with success: $userScore1, $userScore2", response.message)
+        assertEquals("Leaderboard built with success", response.message)
         assertEquals(userScore1, response.leaderBoard[0])
         assertEquals(userScore2, response.leaderBoard[1])
         assertEquals(2, response.leaderBoard.size)
@@ -21,13 +26,18 @@ class LeaderBoardResponseTest {
 
     @Test
     fun `should build monthly leaderboard response successfully`() {
+        val month = "202307"
         val userScore1 = UserScore("username1", 200)
         val userScore2 = UserScore("username2", 100)
-        val userScores = listOf(userScore1, userScore2)
-        val month = "202307"
-        val response = LeaderBoardResponse.buildLeaderBoardResponse(userScores, month)
+
+        val leaderBoard = LeaderBoard(month)
+        leaderBoard.addUserScore(userScore1)
+        leaderBoard.addUserScore(userScore2)
+
+        val response = LeaderBoardResponse.buildLeaderBoardResponse(leaderBoard, 3)
+
         assertEquals(month, response.referenceMonth)
-        assertEquals("Leaderboard built with success: $userScore1, $userScore2", response.message)
+        assertEquals("Leaderboard built with success", response.message)
         assertEquals(userScore1, response.leaderBoard[0])
         assertEquals(userScore2, response.leaderBoard[1])
         assertEquals(2, response.leaderBoard.size)

@@ -14,17 +14,17 @@ class LeaderBoard {
 
     fun buildLeaderBoardList(leaderBoardSize: Int): List<UserScore> {
         val size = leaderBoardSize.coerceAtMost(userScores.size)
-        return userScores.toList().subList(0, size).sortedDescending()
+        return userScores.toList().sortedDescending().subList(0, size)
     }
 
     fun addUserScore(userScore: UserScore) {
         userScores.add(userScore)
     }
 
-    fun cleanLeaderboard(maxSize: Int): Int {
+    fun trimLeaderboard(maxSize: Int): Int {
         var numRemovals = 0
         while (userScores.size > maxSize) {
-            userScores.remove(userScores.last())
+            userScores.poll()
             numRemovals++
         }
         return numRemovals
