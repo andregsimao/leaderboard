@@ -1,6 +1,7 @@
 version: '2'
 services:
     leaderboard-server:
+        platform: linux/arm64
         container_name: leaderboard
         build:
             dockerfile: Dockerfile
