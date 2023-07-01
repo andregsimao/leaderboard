@@ -1,4 +1,4 @@
-FROM gradle:7.5.1-jdk17-alpine as dependencies-builder
+FROM arm64v8/gradle as dependencies-builder
 ENV APP_DIR /app
 WORKDIR $APP_DIR
 
@@ -10,7 +10,7 @@ COPY gradle.properties $APP_DIR/
 RUN gradle dependencies -g /tmp/cache
 
 # -----------------------------------------------------------------------------
-FROM gradle:7.5.1-jdk17-alpine as builder
+FROM arm64v8/gradle as builder
 ENV APP_DIR /app
 WORKDIR $APP_DIR
 RUN mkdir /tmp/cache
@@ -19,7 +19,7 @@ COPY . $APP_DIR
 RUN gradle assemble -g /tmp/cache --no-daemon
 
 # -----------------------------------------------------------------------------
-FROM eclipse-temurin:17-jdk-alpine
+FROM arm64v8/eclipse-temurin
 
 WORKDIR /deployments
 
